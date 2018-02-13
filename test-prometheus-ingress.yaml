@@ -1,0 +1,15 @@
+# try adding /graph to health-check
+# see "a minimal ingress might look like:"
+# from https://kubernetes.io/docs/concepts/services-networking/ingress/
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /graph
+        backend:
+          serviceName: prometheus
+          servicePort: 9090

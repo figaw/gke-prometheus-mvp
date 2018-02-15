@@ -11,6 +11,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccount: prometheus
       containers:
       # use version 2.1.0
       #  since the /-/ready and /-/healthy endpoints weren't available until

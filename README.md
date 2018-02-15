@@ -57,7 +57,7 @@ _Use the following command to find the address Prometheus is being served on,_
 $ kubectl get ingress prometheus-ingress
 ```
 
-# Inferquently Asked Questions:
+# Infrequently Asked Questions:
 
 ## Q: Why?!
 A: Because I wanted to run _something_ in kubernetes, and Prometheus seemed like a great idea, because it'd allow me to visualize stuff running in my cluster!

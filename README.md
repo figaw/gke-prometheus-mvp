@@ -6,7 +6,7 @@ Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheu
 
 ## Requirements
 
-`kubectl`, `gcloud` and (of course..) rights to create the resources in the cluster.
+`kubectl`, `gcloud` and (of course..) [rights to create the RBAC resources in the GKE cluster](https://coreos.com/operators/prometheus/docs/latest/troubleshooting.html)
 
 ## Setup (minimal instructions)
 
@@ -40,7 +40,7 @@ $ kubectl create -f configmap-prometheus.yaml
 $ kubectl create -f deployment-prometheus.yaml
 ```
 
-5. Create the Prometheus Service, exposing the deployment as a `NodePort` since GKE ingress' require this.
+5. Create the Prometheus Service, exposing the deployment as a `NodePort` since GKE ingress' require this
 ```
 $ kubectl create -f service-prometheus.yaml
 ```
@@ -48,6 +48,13 @@ $ kubectl create -f service-prometheus.yaml
 6. Create the `ingress` loadbalancer
 ```
 $ kubectl create -f ingress-prometheus.yaml
+```
+
+7. Plenty of patience and Bob's your uncle
+
+_Use the following command to find the address Prometheus is being served on,_
+```
+$ kubectl get ingress prometheus-ingress
 ```
 
 # Inferquently Asked Questions:

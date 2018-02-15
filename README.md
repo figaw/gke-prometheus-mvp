@@ -6,7 +6,7 @@ Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheu
 
 ## Requirements
 
-`kubectl` and `gcloud`
+`kubectl`, `gcloud` and (of course..) rights to create the resources in the cluster.
 
 ## Setup (minimal instructions)
 

@@ -29,14 +29,14 @@ $ kubectl create -f rbac/clusterrole-prometheus.yaml
 $ kubectl create -f rbac/clusterrolebinding-prometheus.yaml
 ```
 
+Optional: Create the Node Exporter `daemonset` (if you want node-metrics like CPU-usage, etc.)
+```
+$ kubectl create -f node-exporter/daemonset-node-exporter.yaml
+```
+
 3. Create the `configmap` that we're going to mount into the Prometheus `deployment`
 ```
 $ kubectl create -f prometheus/configmap-prometheus.yaml
-```
-
-Optional: Create the Node Exporter `daemonset` (if you want node-metrics like CPU-usage, etc.)
-```
-$ kubectl create -f prometheus/deployment-prometheus.yaml
 ```
 
 4. Create the Prometheus `deployment`

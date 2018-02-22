@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: node-exporter-daemonset
@@ -6,6 +6,10 @@ metadata:
   labels:
     k8s-app: node-exporter
 spec:
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 100% # just kill pods and create new ones
+    type: RollingUpdate
   selector:
     matchLabels:
       name: node-exporter
@@ -13,31 +17,47 @@ spec:
     metadata:
       labels:
         name: node-exporter
+      annotations:
+        prometheus.io/scrape: "true" # very much needed......
+        # prometheus.io/port: "9100" # not needed since prometheus will use the containerPort 9100
     spec:
+      securityContext:
+        runAsNonRoot: true # allow running as nobody
+        runAsUser: 65534 # run as user-nobody
+      hostNetwork: true # using docker --net="host"
+      hostPID: true # using docker --pid="host"
       tolerations:
-      - key: node-role.kubernetes.io/master
-        effect: NoSchedule
+      - effect: NoSchedule
+        operator: Exists
       containers:
       - name: node-exporter
-        image: quay.io/prometheus/node-exporter
+        image: quay.io/prometheus/node-exporter:v0.15.2
+        args:
+        # - "--web.listen-address=127.0.0.1:9101" # default port is 9100 but customizable here
+        - "--path.procfs=/host/proc"
+        - "--path.sysfs=/host/sys"
         resources:
-          limits:
-            memory: 200Mi
           requests:
             cpu: 100m
-            memory: 200Mi
+            memory: 30Mi
+          limits:
+            cpu: 200m
+            memory: 50Mi
+        ports:
+        - containerPort: 9100
+          protocol: TCP
         volumeMounts:
-        - name: varlog
-          mountPath: /var/log
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
+        - name: proc
           readOnly: true
-      terminationGracePeriodSeconds: 30
+          mountPath: /host/proc
+        - name: sys
+          readOnly: true
+          mountPath: /host/sys
       volumes:
-      - name: varlog
+      - name: proc
         hostPath:
-          path: /var/log
-      - name: varlibdockercontainers
+          path: /proc # instead of /host/proc (on GKE the vm's don't have a /host folder)
+      - name: sys
         hostPath:
-          path: /var/lib/docker/containers
+          path: /sys # instead of /host/sys
 

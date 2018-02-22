@@ -2,6 +2,9 @@
 
 Kubernetes in Google Kubernetes Engine, running Prometheus 2.1.0, scraping Kubernetes, itself and data from the nodes in the cluster.
 
+Now with Grafana 4.6.3! (You still have to configure the Datasources manually because datasources-as-code isn't coming until 5.0.0 which is in review, and until then you _can_ do it with a curl to the API)
+[Issue (+ curl/python-script solutions): Adding datasource without using the web gui](https://github.com/grafana/grafana/issues/1789), [PR: Datasources as configuration](https://github.com/grafana/grafana/pull/9504)
+
 Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheus.html from August 03, 2016.
 
 ## Requirements
@@ -14,6 +17,10 @@ Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheu
 2. Run `setup.sh`
 3. ???
 4. Profit!
+
+### Cleanup
+
+Run `teardown.sh`
 
 ## Setup (detailed instructions)
 
@@ -59,6 +66,18 @@ $ kubectl create -f networking/ingress-prometheus.yaml
 _Use the following command to find the address Prometheus is being served on,_
 ```
 $ kubectl get ingress prometheus-ingress
+```
+
+Optional: Create the Grafana resources from the `grafana/` folder, (you still have to add the datasource, for `URL` use the ip from the Prometheus `service` e.g. http://10.59.253.76:9090, and `Access: Proxy`)
+```
+$ kubectl create -f grafana/deployment-grafana.yaml
+$ kubectl create -f grafana/service-grafana.yaml
+$ kubectl create -f grafana/ingress-grafana.yaml
+```
+
+Add patience, and _use the following command to find the address Grafana is being served on,_
+```
+$ kubectl get ingress grafana-ingress
 ```
 
 # Infrequently Asked Questions:

@@ -10,3 +10,7 @@ kubectl create -f prometheus/deployment-prometheus.yaml
 
 kubectl create -f networking/service-prometheus.yaml
 kubectl create -f networking/ingress-prometheus.yaml
+
+kubectl create -f grafana/deployment-grafana.yaml
+kubectl create -f grafana/service-grafana.yaml
+kubectl create -f grafana/ingress-grafana.yaml

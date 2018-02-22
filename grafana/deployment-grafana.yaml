@@ -1,0 +1,47 @@
+# Inspired heavily by GiantSwarms Kubernetes Prometheus example
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: grafana-deployment
+  name: grafana
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: grafana/grafana:4.6.3
+        name: grafana
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          - name: GF_AUTH_BASIC_ENABLED
+            value: "true"
+        volumeMounts:
+        - mountPath: "/var"
+          name: grafana-persistent-volume
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        # Define the readiness endpoint for the health check
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /login
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: grafana-persistent-volume

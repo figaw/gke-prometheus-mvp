@@ -1,0 +1,95 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: prometheus-deployment
+  name: prometheus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      initContainers:
+      - name: "init-chown-data"
+        image: "busybox"
+        # Prometheus runs as nobody:nobody
+        command: ["chown", "-R", "65534:65534", /var/prometheus/data]
+        volumeMounts:
+        - name: data
+          mountPath: /var/prometheus/data
+      containers:
+      # use version 2.1.0
+      #  since the /-/ready and /-/healthy endpoints weren't available until
+      #   1.8, and I have no legacy application running so, in with the new!
+      - image: quay.io/prometheus/prometheus:v2.1.0
+        name: prometheus
+        command:
+        - "/bin/prometheus"
+        args:
+        # use two '-'-dashes in v2
+        - --config.file=/etc/prometheus/prometheus.yml
+        # storage format changed in v2
+        - --storage.tsdb.path=/var/prometheus/data
+        # retention format changed in v2
+        - --storage.tsdb.retention=24h
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/prometheus
+          name: data
+        - mountPath: "/etc/prometheus"
+          name: config-volume
+        # Define a liveness probe endpoint
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /-/healthy
+            port: 9090
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 30
+        # Define the readiness endpoint for the health check
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /-/ready
+            port: 9090
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 30
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 2500Mi
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
+      - configMap:
+          name: prometheus-config
+        name: config-volume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+      #retention is only 24h, so this will quite
+      # probably be near infinitely more than what's needed
+      # but it's an example so I don't want it to fail b/c of this.

@@ -12,8 +12,11 @@ spec:
       labels:
         app: grafana
     spec:
+      securityContext: # Configure the security context, so Grafana can set up folders
+        runAsUser: 472
+        fsGroup: 472
       containers:
-      - image: grafana/grafana:4.6.3
+      - image: grafana/grafana:5.2.2
         name: grafana
         resources:
           limits:
@@ -26,7 +29,7 @@ spec:
           - name: GF_AUTH_BASIC_ENABLED
             value: "true"
         volumeMounts:
-        - mountPath: "/var"
+        - mountPath: "/var/lib/grafana"
           name: grafana-persistent-volume
         ports:
         - containerPort: 3000

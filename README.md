@@ -4,8 +4,7 @@ Kubernetes in Google Kubernetes Engine, running Prometheus 2.1.0, scraping Kuber
 
 Now with Persistent Volume on Prometheus! (so you can `delete` the Prometheus pod without losing data..)
 
-Now with Grafana 4.6.3! (You still have to configure the Datasources manually because datasources-as-code isn't coming until 5.0.0 which is in review, and until then you _can_ do it with a curl to the API)
-[Issue (+ curl/python-script solutions): Adding datasource without using the web gui](https://github.com/grafana/grafana/issues/1789), [PR: Datasources as configuration](https://github.com/grafana/grafana/pull/9504)
+Now with Grafana 5.2.2! (You still have to configure the Datasources manually because.. I'm in the making of doing this.)
 
 Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheus.html from August 03, 2016.
 
@@ -109,4 +108,6 @@ If you need `Retain` either edit the `PV` after it's been created, or create a `
 
 # Roadmap
 
-- Upgrade Grafana to v5 for more Config as Code!
+- Add dashboards now that I've bumped to v5
+- Datasources as code
+- ~~Upgrade Grafana to v5 for more Config as Code!~~

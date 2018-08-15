@@ -11,7 +11,13 @@ Inspired heavily by https://coreos.com/blog/monitoring-kubernetes-with-prometheu
 
 ## Requirements
 
-`kubectl`, `gcloud` and (of course..) [rights to create the RBAC resources in the GKE cluster](https://coreos.com/operators/prometheus/docs/latest/troubleshooting.html)
+`kubectl`, `gcloud` and (of course..) [rights to create the RBAC resources in the GKE cluster](https://coreos.com/operators/prometheus/docs/latest/troubleshooting.html), see below:
+
+```
+kubectl create clusterrolebinding myname-cluster-admin-binding --clusterrole=cluster-admin --user=me@domain.com
+```
+
+NB: remember to use the email associated with your GCP account
 
 ## Setup (minimal instructions)
 

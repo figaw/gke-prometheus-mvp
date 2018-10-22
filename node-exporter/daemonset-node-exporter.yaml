@@ -38,10 +38,10 @@ spec:
         - "--path.sysfs=/host/sys"
         resources:
           requests:
-            cpu: 100m
+            cpu: 2m
             memory: 30Mi
           limits:
-            cpu: 200m
+            cpu: 10m
             memory: 50Mi
         ports:
         - containerPort: 9100

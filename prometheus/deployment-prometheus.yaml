@@ -59,11 +59,11 @@ spec:
           timeoutSeconds: 30
         resources:
           requests:
-            cpu: 100m
+            cpu: 20m
             memory: 100Mi
           limits:
-            cpu: 500m
-            memory: 2500Mi
+            cpu: 50m
+            memory: 1500Mi
       volumes:
       - emptyDir: {}
         name: data

@@ -2,10 +2,14 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    name: prometheus-deployment
+    app: prometheus
   name: prometheus
+  namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
   template:
     metadata:
       labels:
@@ -67,11 +71,11 @@ spec:
           timeoutSeconds: 30
         resources:
           requests:
-            cpu: 100m
+            cpu: 20m
             memory: 100Mi
           limits:
-            cpu: 500m
-            memory: 2500Mi
+            cpu: 50m
+            memory: 1500Mi
       volumes:
       - name: data
         persistentVolumeClaim:
@@ -84,12 +88,13 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prometheus-pv-claim
+  namespace: monitoring
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
       #retention is only 24h, so this will quite
       # probably be near infinitely more than what's needed
       # but it's an example so I don't want it to fail b/c of this.

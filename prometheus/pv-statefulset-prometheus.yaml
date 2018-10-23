@@ -1,38 +1,45 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   labels:
-    name: prometheus-deployment
+    app: prometheus
   name: prometheus
+  namespace: monitoring
 spec:
-  replicas: 1
+  replicas: 2
+  serviceName: "prometheus"
+  selector:
+    matchLabels:
+      app: prometheus
   template:
     metadata:
       labels:
         app: prometheus
     spec:
       serviceAccount: prometheus
+      initContainers:
+      - name: "init-chown-data"
+        image: "busybox"
+        # Prometheus runs as nobody:nobody
+        command: ["chown", "-R", "65534:65534", /var/prometheus/data]
+        volumeMounts:
+        - name: prometheus-claim-tmpl
+          mountPath: /var/prometheus/data
       containers:
-      # use version 2.1.0
-      #  since the /-/ready and /-/healthy endpoints weren't available until
-      #   1.8, and I have no legacy application running so, in with the new!
       - image: quay.io/prometheus/prometheus:v2.1.0
         name: prometheus
         command:
         - "/bin/prometheus"
         args:
-        # use two '-'-dashes in v2
         - --config.file=/etc/prometheus/prometheus.yml
-        # storage format changed in v2
-        - --storage.tsdb.path=/prometheus
-        # retention format changed in v2
+        - --storage.tsdb.path=/var/prometheus/data
         - --storage.tsdb.retention=24h
         ports:
         - containerPort: 9090
           protocol: TCP
         volumeMounts:
-        - mountPath: "/prometheus"
-          name: data
+        - mountPath: /var/prometheus
+          name: prometheus-claim-tmpl
         - mountPath: "/etc/prometheus"
           name: config-volume
         # Define a liveness probe endpoint
@@ -65,8 +72,16 @@ spec:
             cpu: 50m
             memory: 1500Mi
       volumes:
-      - emptyDir: {}
-        name: data
       - configMap:
           name: prometheus-config
         name: config-volume
+      nodeSelector:
+        purpose: infrastructure
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-claim-tmpl
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
